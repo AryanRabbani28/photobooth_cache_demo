@@ -7,7 +7,7 @@ import { playBeep, playShutterSound, playPrintSound } from "@/lib/sound";
 import type { Session, Booth, Package } from "@/api/client";
 import { loadAuth } from "@/api/session";
 
-// Extended LUT filters for cache
+// Extended LUT filters for caché
 export const BOOTH_LUTS: FilterDef[] = [
   ...FALLBACK_FILTERS,
   {
