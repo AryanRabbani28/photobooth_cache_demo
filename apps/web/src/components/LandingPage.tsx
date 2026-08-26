@@ -51,8 +51,8 @@ export const LandingPage: React.FC = () => {
             <Camera className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl md:text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-200 to-zinc-400 font-sans">
-              CACHÉ
+            <h1 className="text-3xl md:text-4xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-200 to-zinc-400 font-serif italic lowercase font-medium pr-2">
+              caché<sup className="text-[0.45em] no-italic font-sans ml-0.5">®</sup>
             </h1>
             <p className="text-xs text-zinc-400 tracking-widest uppercase">
               Professional 3-Photo Strip Studio
