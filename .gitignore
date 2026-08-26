@@ -1,0 +1,27 @@
+# Exclude root specification document
+Photobooth-Management-System-Complete-Specification.md
+
+# AI / IDE tools
+.claude/
+.vscode/
+.idea/
+
+# Backend (Python / FastAPI)
+.venv/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.db
+*.sqlite3
+apps/backend/storage/
+
+# Frontend (Node / Vite)
+node_modules/
+apps/web/node_modules/
+apps/web/dist/
+dist/
+
+# Environment variables
+.env
+.env.*
+!.env.example

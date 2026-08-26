@@ -1,0 +1,13 @@
+# Backend — Photobooth Management System demo
+#
+# Pinned loosely (compatible-release) so a fresh `pip install -r requirements.txt`
+# resolves cleanly on Python 3.11-3.13. Versions verified against PyPI 2026-08.
+fastapi~=0.141.1
+uvicorn[standard]~=0.52.4
+sqlalchemy~=2.0.52
+pydantic~=2.13.4
+pydantic-settings~=2.15.0
+PyJWT~=2.13.0
+bcrypt~=5.0.0
+python-multipart~=0.0.32
+pillow~=12.3.0
