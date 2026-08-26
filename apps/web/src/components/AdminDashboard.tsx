@@ -19,6 +19,8 @@ import {
   FileText,
 } from "lucide-react";
 
+import { ContainerScroll } from "@/components/ui/container-scroll-animation";
+
 export const AdminDashboard: React.FC = () => {
   const { setScreen, adminToken, setAdminToken } = useBooth();
   const [stats, setStats] = useState<OverviewStats | null>(null);
@@ -202,7 +204,20 @@ export const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-white flex flex-col justify-between select-none">
+    <div className="flex flex-col overflow-hidden bg-neutral-950">
+      <ContainerScroll
+        titleComponent={
+          <>
+            <h1 className="text-4xl font-semibold text-white mb-8">
+              System Control <br />
+              <span className="text-4xl md:text-[6rem] font-bold mt-1 leading-none text-cyan-400">
+                Admin Dashboard
+              </span>
+            </h1>
+          </>
+        }
+      >
+        <div className="h-full w-full bg-neutral-950 text-white flex flex-col select-none overflow-y-auto overflow-x-hidden">
       {/* Top Navbar */}
       <header className="bg-zinc-900 border-b border-zinc-800 px-6 py-4 flex justify-between items-center sticky top-0 z-30">
         <div className="flex items-center gap-3">
@@ -249,7 +264,7 @@ export const AdminDashboard: React.FC = () => {
       </header>
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto w-full p-6 space-y-6 flex-1">
+      <main className="w-full max-w-full px-8 py-6 space-y-6 flex-1">
         {/* Navigation Tabs */}
         <div className="flex gap-2 border-b border-zinc-800 pb-3">
           {[
@@ -462,32 +477,32 @@ export const AdminDashboard: React.FC = () => {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-sm">
                 <thead className="bg-zinc-850/60 text-zinc-400 font-semibold border-b border-zinc-800">
                   <tr>
-                    <th className="py-3 px-4">Session ID</th>
-                    <th className="py-3 px-4">Booth</th>
-                    <th className="py-3 px-4">Template</th>
-                    <th className="py-3 px-4">Photos / Retakes</th>
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4">Duration</th>
+                    <th className="py-4 px-6">Session ID</th>
+                    <th className="py-4 px-6">Booth</th>
+                    <th className="py-4 px-6">Template</th>
+                    <th className="py-4 px-6">Photos / Retakes</th>
+                    <th className="py-4 px-6">Status</th>
+                    <th className="py-4 px-6">Duration</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800/60 text-zinc-300">
                   {recentSessions.map((s) => (
                     <tr key={s.id} className="hover:bg-zinc-850/40">
-                      <td className="py-3.5 px-4 font-mono text-cyan-400 font-medium">{s.id}</td>
-                      <td className="py-3.5 px-4 font-medium">{s.booth_code}</td>
-                      <td className="py-3.5 px-4">{s.template_name || "Classic Strip"}</td>
-                      <td className="py-3.5 px-4">
+                      <td className="py-4 px-6 font-mono text-cyan-400 font-medium">{s.id}</td>
+                      <td className="py-4 px-6 font-medium">{s.booth_code}</td>
+                      <td className="py-4 px-6">{s.template_name || "Classic Strip"}</td>
+                      <td className="py-4 px-6">
                         {s.photos_captured} photos ({s.retakes_used} retakes)
                       </td>
-                      <td className="py-3.5 px-4">
-                        <span className="bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full text-[10px] font-semibold">
+                      <td className="py-4 px-6">
+                        <span className="bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-full text-xs font-semibold">
                           {s.status}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 text-zinc-400 font-mono">
+                      <td className="py-4 px-6 text-zinc-400 font-mono">
                         {s.allocated_time}s allocated
                       </td>
                     </tr>
@@ -687,9 +702,11 @@ export const AdminDashboard: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-zinc-900/60 border-t border-zinc-800 px-6 py-3 text-center text-xs text-zinc-500">
+      <footer className="bg-zinc-900/60 border-t border-zinc-800 px-6 py-3 text-center text-xs text-zinc-500 shrink-0 mt-auto">
         Photobooth System Dashboard • All hardware drivers active
       </footer>
+        </div>
+      </ContainerScroll>
     </div>
   );
 };
