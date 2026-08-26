@@ -25,3 +25,10 @@ dist/
 .env
 .env.*
 !.env.example
+
+# AI & Environment ignores
+apps/backend/demo.db
+apps/backend/storage/
+apps/backend/.venv/
+apps/backend/__pycache__/
+*.log
