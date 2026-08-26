@@ -52,7 +52,7 @@ export const LandingPage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-xl md:text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-200 to-zinc-400 font-sans">
-              CINEMA BOOTH
+              CACHE
             </h1>
             <p className="text-xs text-zinc-400 tracking-widest uppercase">
               Professional 3-Photo Strip Studio
