@@ -19,7 +19,6 @@ import {
   FileText,
 } from "lucide-react";
 
-import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 
 export const AdminDashboard: React.FC = () => {
   const { setScreen, adminToken, setAdminToken } = useBooth();
@@ -204,20 +203,7 @@ export const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col overflow-hidden bg-neutral-950">
-      <ContainerScroll
-        titleComponent={
-          <>
-            <h1 className="text-4xl font-semibold text-white mb-8">
-              System Control <br />
-              <span className="text-4xl md:text-[6rem] font-bold mt-1 leading-none text-cyan-400">
-                Admin Dashboard
-              </span>
-            </h1>
-          </>
-        }
-      >
-        <div className="h-full w-full bg-neutral-950 text-white flex flex-col select-none overflow-y-auto overflow-x-hidden">
+    <div className="h-screen w-full bg-neutral-950 text-white flex flex-col select-none overflow-y-auto overflow-x-hidden">
       {/* Top Navbar */}
       <header className="bg-zinc-900 border-b border-zinc-800 px-6 py-4 flex justify-between items-center sticky top-0 z-30">
         <div className="flex items-center gap-3">
@@ -705,8 +691,7 @@ export const AdminDashboard: React.FC = () => {
       <footer className="bg-zinc-900/60 border-t border-zinc-800 px-6 py-3 text-center text-xs text-zinc-500 shrink-0 mt-auto">
         Photobooth System Dashboard • All hardware drivers active
       </footer>
-        </div>
-      </ContainerScroll>
     </div>
   );
 };
+
