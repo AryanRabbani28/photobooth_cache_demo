@@ -2,15 +2,15 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://photobooth-cache-demo.onrender.com/api/:path*"
+      "destination": "https://photobooth-cache-demo-1per.onrender.com/api/:path*"
     },
     {
       "source": "/health",
-      "destination": "https://photobooth-cache-demo.onrender.com/health"
+      "destination": "https://photobooth-cache-demo-1per.onrender.com/health"
     },
     {
       "source": "/ws",
-      "destination": "https://photobooth-cache-demo.onrender.com/ws"
+      "destination": "https://photobooth-cache-demo-1per.onrender.com/ws"
     },
     {
       "source": "/((?!api/|health|ws).*)",
