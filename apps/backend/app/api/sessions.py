@@ -29,6 +29,7 @@ from app.api.common import (
     log,
     recount_photos,
     session_out,
+    sessions_out_batch,
     transition,
 )
 from app.models import BoothSession, Package, Template, utcnow
@@ -453,8 +454,14 @@ def list_sessions(
 ) -> list[SessionOut]:
     """Session history (§22.3). Operators are scoped to their own booth."""
     from sqlalchemy import select
+    from sqlalchemy.orm import selectinload
 
-    stmt = select(BoothSession)
+    stmt = select(BoothSession).options(
+        selectinload(BoothSession.booth),
+        selectinload(BoothSession.operator),
+        selectinload(BoothSession.package),
+        selectinload(BoothSession.template),
+    )
     if user.role != "ADMIN":
         operator = operator_for(user, db)
         stmt = stmt.where(BoothSession.booth_id == (operator.assigned_booth_id if operator else ""))
@@ -465,10 +472,10 @@ def list_sessions(
     if live:
         stmt = stmt.where(BoothSession.status.in_(LIVE_STATUSES))
 
-    rows = db.scalars(
+    rows = list(db.scalars(
         stmt.order_by(BoothSession.created_at.desc()).limit(limit).offset(offset)
-    )
-    return [session_out(db, s) for s in rows]
+    ))
+    return sessions_out_batch(db, rows)
 
 
 @router.get("/sessions/{session_id}", response_model=SessionOut)

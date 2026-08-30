@@ -6,7 +6,7 @@ from fastapi import APIRouter
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api.common import booth_out, get_booth_or_404, live_session_for, session_out
+from app.api.common import booth_out, booths_out_batch, get_booth_or_404, live_session_for, session_out
 from app.models import Booth, DeviceStatus, utcnow
 from app.schemas import BoothOut, HeartbeatRequest, SessionOut
 from app.security import CurrentBooth, CurrentUser, DbSession, operator_for
@@ -18,12 +18,18 @@ router = APIRouter(tags=["booths"])
 @router.get("/booths", response_model=list[BoothOut])
 def list_booths(user: CurrentUser, db: DbSession) -> list[BoothOut]:
     """Admins see every booth; an operator sees only the one they command (§25.2)."""
-    booths = list(db.scalars(select(Booth).order_by(Booth.booth_code)))
+    from sqlalchemy.orm import selectinload
+
+    booths = list(db.scalars(
+        select(Booth)
+        .options(selectinload(Booth.location), selectinload(Booth.device_status))
+        .order_by(Booth.booth_code)
+    ))
     if user.role != "ADMIN":
         operator = operator_for(user, db)
         assigned = operator.assigned_booth_id if operator else None
         booths = [b for b in booths if b.id == assigned]
-    return [booth_out(db, b) for b in booths]
+    return booths_out_batch(db, booths)
 
 
 @router.get("/booths/{booth_id}", response_model=BoothOut)

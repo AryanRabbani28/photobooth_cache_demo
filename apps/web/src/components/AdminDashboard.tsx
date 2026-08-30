@@ -35,17 +35,30 @@ export const AdminDashboard: React.FC = () => {
     setIsLoading(true);
     try {
       if (adminToken && adminToken !== "demo_admin_token") {
-        const [overviewRes, boothsRes, sessionsRes, logsRes] = await Promise.allSettled([
-          api.overview(adminToken),
-          api.booths(adminToken),
-          api.sessions(adminToken, { limit: 10 }),
-          api.logs(adminToken, 20),
-        ]);
-
-        if (overviewRes.status === "fulfilled") setStats(overviewRes.value);
-        if (boothsRes.status === "fulfilled") setBooths(boothsRes.value);
-        if (sessionsRes.status === "fulfilled") setRecentSessions(sessionsRes.value);
-        if (logsRes.status === "fulfilled") setLogs(logsRes.value);
+        // Fetch only the data needed for the active tab — no reason to
+        // block the dashboard waiting on queries for invisible tabs.
+        switch (activeTab) {
+          case "overview": {
+            const res = await api.overview(adminToken);
+            setStats(res);
+            break;
+          }
+          case "booths": {
+            const res = await api.booths(adminToken);
+            setBooths(res);
+            break;
+          }
+          case "sessions": {
+            const res = await api.sessions(adminToken, { limit: 10 });
+            setRecentSessions(res);
+            break;
+          }
+          case "hardware": {
+            const res = await api.logs(adminToken, 20);
+            setLogs(res);
+            break;
+          }
+        }
       } else {
         // Mock data for presentation/demo mode
         setStats({
@@ -176,7 +189,7 @@ export const AdminDashboard: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [adminToken]);
+  }, [adminToken, activeTab]);
 
   useEffect(() => {
     loadData();

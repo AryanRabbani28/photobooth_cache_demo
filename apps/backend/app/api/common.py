@@ -185,8 +185,8 @@ def booth_out(db: Session, booth: Booth) -> BoothOut:
 
 
 def session_out(db: Session, session: BoothSession) -> SessionOut:
+    """Serialize one session — still issues per-row queries for the single-object case."""
     final = latest_final_output(db, session.id)
-    package = session.package
     # Queried, not counted from `session.photos`, for the same reason as `recount_photos`.
     photo_count = (
         db.scalar(
@@ -196,6 +196,14 @@ def session_out(db: Session, session: BoothSession) -> SessionOut:
         )
         or 0
     )
+    return _build_session_out(session, photo_count, final)
+
+
+def _build_session_out(
+    session: BoothSession, photo_count: int, final: FinalOutput | None,
+) -> SessionOut:
+    """Pure mapper — no DB access, shared by single and batch paths."""
+    package = session.package
     return SessionOut(
         id=session.id,
         booth_id=session.booth_id,
@@ -223,3 +231,93 @@ def session_out(db: Session, session: BoothSession) -> SessionOut:
         final_output_id=final.id if final else None,
         final_output_path=final.file_path if final else None,
     )
+
+
+def sessions_out_batch(db: Session, sessions: list[BoothSession]) -> list[SessionOut]:
+    """Serialize multiple sessions with O(1) batched queries instead of O(n).
+
+    Replaces the per-session photo-count and final-output lookups with two bulk
+    queries, cutting ~50 round-trips down to 2 for a typical dashboard load.
+    """
+    if not sessions:
+        return []
+
+    ids = [s.id for s in sessions]
+
+    # One COUNT query for all sessions instead of one per session.
+    photo_counts: dict[str, int] = dict(
+        db.execute(
+            select(Photo.session_id, func.count())
+            .where(Photo.session_id.in_(ids), Photo.is_kept.is_not(False))
+            .group_by(Photo.session_id)
+        ).all()
+    )
+
+    # One query for all final outputs; first-seen per session_id is the latest
+    # because we ORDER BY created_at DESC.
+    finals_by_session: dict[str, FinalOutput] = {}
+    for fo in db.scalars(
+        select(FinalOutput)
+        .where(FinalOutput.session_id.in_(ids))
+        .order_by(FinalOutput.created_at.desc())
+    ):
+        finals_by_session.setdefault(fo.session_id, fo)
+
+    return [
+        _build_session_out(s, photo_counts.get(s.id, 0), finals_by_session.get(s.id))
+        for s in sessions
+    ]
+
+
+def booths_out_batch(db: Session, booths: list[Booth]) -> list[BoothOut]:
+    """Serialize multiple booths with a single batched live-session query.
+
+    Replaces the per-booth ``live_session_for`` call with one bulk query.
+    """
+    if not booths:
+        return []
+
+    booth_ids = [b.id for b in booths]
+
+    # One query instead of one per booth.
+    live_map: dict[str, BoothSession] = {}
+    for s in db.scalars(
+        select(BoothSession)
+        .where(
+            BoothSession.booth_id.in_(booth_ids),
+            BoothSession.status.in_(LIVE_STATUSES),
+        )
+        .order_by(BoothSession.created_at.desc())
+    ):
+        live_map.setdefault(s.booth_id, s)
+
+    results: list[BoothOut] = []
+    for booth in booths:
+        connected = booth.id in manager.connected_booth_ids
+        live = live_map.get(booth.id)
+        if not connected:
+            observed = "OFFLINE"
+        elif booth.status == "MAINTENANCE":
+            observed = "MAINTENANCE"
+        elif live is not None:
+            observed = "BUSY"
+        else:
+            observed = "ONLINE"
+
+        results.append(BoothOut(
+            id=booth.id,
+            name=booth.name,
+            booth_code=booth.booth_code,
+            device_id=booth.device_id,
+            status=observed,
+            last_seen=booth.last_seen,
+            app_version=booth.app_version,
+            location_name=booth.location.name if booth.location else None,
+            device_status=(
+                DeviceStatusOut.model_validate(booth.device_status)
+                if booth.device_status
+                else None
+            ),
+            active_session_id=live.id if live else None,
+        ))
+    return results
